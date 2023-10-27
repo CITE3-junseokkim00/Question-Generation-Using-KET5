@@ -5,15 +5,15 @@ import pandas as pd
 import lightning.pytorch as pl
 
 class QGDataset(Dataset):
-    def __init__(self, file, tokenizer, max_len=1024, ignore_index=-100, shuffle=False):
+    def __init__(self, file, tokenizer, ignore_index=-100, shuffle=False):
         super().__init__()
         self.tokenizer = tokenizer
-        self.max_len = max_len
+        self.max_len = tokenizer.model_max_length
         self.file = pd.read_csv(file)
         if shuffle:
             self.file.sample(frac=1)
         self.len = self.file.shape[0]
-        self.sep_token = tokenizer.unk_token_id
+        self.sep_token = tokenizer.unk_token
         self.pad_index = self.tokenizer.pad_token_id
         self.ignore_index = ignore_index
 
@@ -43,7 +43,7 @@ class QGDataset(Dataset):
         label_ids.append(self.tokenizer.eos_token_id)
         
 
-        dec_input_ids = [self.tokenizer.bos_token_id]
+        dec_input_ids = [self.tokenizer.pad_token_id]
         dec_input_ids += label_ids[:-1]
         dec_input_ids = self.add_padding_data(dec_input_ids)
         label_ids = self.add_ignore_data(label_ids)

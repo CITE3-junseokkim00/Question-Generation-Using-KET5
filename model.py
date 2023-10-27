@@ -1,15 +1,15 @@
 import pandas as pd
 import lightning.pytorch as pl
-from transformers import MBartForConditionalGeneration, MBart50Tokenizer
+from transformers import T5ForConditionalGeneration,T5Tokenizer
 from transformers.optimization import AdamW, get_cosine_schedule_with_warmup
 import torchmetrics
 import torch
 
-class MBARTQuestionGenerator(pl.LightningModule):
+class KET5QuestionGenerator(pl.LightningModule):
     def __init__(self, lr):
         super().__init__()
-        self.model = MBartForConditionalGeneration.from_pretrained('facebook/mbart-large-50')
-        self.tokenizer = MBart50Tokenizer.from_pretrained('facebook/mbart-large-50')
+        self.model = T5ForConditionalGeneration.from_pretrained('KETI-AIR/ke-t5-base')
+        self.tokenizer = T5Tokenizer.from_pretrained('KETI-AIR/ke-t5-base')
         self.lr = lr
         self.train_loss = []
         self.val_loss = []
@@ -31,7 +31,7 @@ class MBARTQuestionGenerator(pl.LightningModule):
                           attention_mask=attention_mask, 
                           decoder_input_ids=batch['decoder_input_ids'],
                           decoder_attention_mask=decoder_attention_mask,
-                          labels=batch['labels'], return_dict=True)
+                          labels=batch['label_ids'], return_dict=True)
     
     def training_step(self, batch):
         output = self.forward(batch)
